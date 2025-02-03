@@ -107,6 +107,7 @@ def finalize_acquisition():
     config = load_config(config_path=DEFAULT_CONFIG_PATH)
     tmp_dir_ = config["tmp_dir"]
     out_dir_ = config["out_dir"]
+    streams = config.get("streams", {})
     cam0 = list(streams.keys())[0]
     frames_per_file_ = config["streams"][cam0]["frames_per_file"]
     frames_per_second_ = config["streams"][cam0]["frames_per_second"]
