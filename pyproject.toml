@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bb_gui"
+version = "0.1.0"
+description = "A browser-based interface to record videos and run the BeesBook detection and tracking pipeline"
+readme = "README.md"
+requires-python = ">=3.6"
+license = { text = "MIT" }
+
+dependencies = [
+    "streamlit",
+    "watchdog",
+    "brotli",
+    "pyarrow",
+]
+
+# Make the `bb_gui` command available
+[project.scripts]
+bb_gui = "bb_gui.main:main"
+
+[tool.setuptools]
+packages = { find = { where = ["."] } }
+include-package-data = true
