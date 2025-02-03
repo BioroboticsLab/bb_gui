@@ -90,16 +90,17 @@ def get_tracks(video_dataframe,cm_per_pixel):
 def display_detection_results(first_frame_image,video_dataframe,detectionspng_filename):
     f, ax = plt.subplots(figsize=(15, 15))
     ax.imshow(first_frame_image)
-    x_pixels = video_dataframe['xpos'].values
-    y_pixels = video_dataframe['ypos'].values 
-    orientations = video_dataframe['zrotation'].values  
-    # Plot detections
-    plt.scatter(x_pixels, y_pixels, s=10, c='red', marker='o',alpha=0.3)
-    # Plot orientation arrows
-    for x, y, ori in zip(x_pixels, y_pixels, orientations):
-        dx = 40 * np.cos(ori)  # Adjust the length as needed
-        dy = 40 * np.sin(ori)
-        plt.arrow(x, y, dx, dy, color='yellow', head_width=15, head_length=15)
+    if video_dataframe is not None:
+        x_pixels = video_dataframe['xpos'].values
+        y_pixels = video_dataframe['ypos'].values 
+        orientations = video_dataframe['zrotation'].values  
+        # Plot detections
+        plt.scatter(x_pixels, y_pixels, s=10, c='red', marker='o',alpha=0.3)
+        # Plot orientation arrows
+        for x, y, ori in zip(x_pixels, y_pixels, orientations):
+            dx = 40 * np.cos(ori)  # Adjust the length as needed
+            dy = 40 * np.sin(ori)
+            plt.arrow(x, y, dx, dy, color='yellow', head_width=15, head_length=15)
     plt.savefig(detectionspng_filename,bbox_inches="tight")
     plt.close()
     return True

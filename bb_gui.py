@@ -297,8 +297,7 @@ def main():
     # -------------------------------------------------------------------------
     # 5) "Play Selected" button
     # -------------------------------------------------------------------------
-        selected_rows = edited_df[edited_df["select"] == True]
-
+    selected_rows = edited_df[edited_df["select"] == True]
     if st.button("Play Selected"):
         if selected_rows.empty:
             st.warning("No rows selected!")
