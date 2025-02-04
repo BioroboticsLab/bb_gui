@@ -117,23 +117,23 @@ def main():
         st.write("Set parameters for detection and tracking:")
         
         # First row
-        col1, col2, col3, col4, col5, col6 = st.columns(6)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
             tag_pixel_diameter = st.number_input("tag_pixel_diameter", min_value=1.0, max_value=999.0, value=45.0)
         with col2:
             cm_per_pixel = st.number_input("cm_per_pixel", min_value=0.0, max_value=1.0, value=(200 / 5312))
         with col3:
-            recalc_str = st.selectbox("recalc", ["false", "true"], index=0)
-        with col4:
             timestamp_format = st.selectbox("timestamp_format", ["basler", "rpi"], index=0)
-        with col5:
-            use_trajectories_str = st.selectbox("use_trajectories", ["false", "true"], index=1)
-        with col6:
-            save_filetype = st.selectbox("save_filetype", ["parquet", "csv"], index=0)
-
-    # Convert the "false"/"true" strings to boolean
-    recalc = (recalc_str == "true")
-    use_trajectories = (use_trajectories_str == "true")
+        with col4:
+            save_filetype = st.selectbox("save_filetype", ["parquet", "csv"], index=0)            
+        
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            use_trajectories = st.checkbox("Create tracks from detections?", value=True) 
+        with col2:
+            recalc = st.checkbox("Recalculate?", value=False)
+        with col3:
+            use_clahe = st.checkbox("Use CLAHE?", value=True)
 
     # ------------------------
     # 2) VIDEO SETTINGS
@@ -141,28 +141,24 @@ def main():
     with st.expander("Video Settings", expanded=False):
         st.write("Parameters for video visualizing the results:")
 
-        col1, col2, col3, col4, col5 = st.columns(5)
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
-            create_video_str = st.selectbox("create_video", ["false", "true"], index=1)
+            create_video = st.checkbox("Create Video?", value=True) 
         with col2:
-            scale_factor = st.number_input("scale_factor", min_value=0.01, max_value=1.0, value=0.25)
+            save_png = st.checkbox("Save PNG with detection?", value=False) 
         with col3:
+            show_untagged = st.checkbox("Show Untagged?", value=False)  # Default was "false"            
+
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            scale_factor = st.number_input("video scale factor", min_value=0.01, max_value=1.0, value=0.25)
+        with col2:
             track_history = st.number_input("track_history", min_value=0, max_value=9999, value=0)
+        with col3:
+            r_untagged = st.number_input("r_untagged", min_value=1, max_value=50, value=5)            
         with col4:
             r_tagged = st.number_input("r_tagged", min_value=1, max_value=50, value=20)
-        with col5:
-            save_png_str = st.selectbox("save_png", ["false", "true"], index=0)
 
-        col1, col2, col3, col4, col5 = st.columns(5)
-        with col1:
-            show_untagged_str = st.selectbox("show_untagged", ["false", "true"], index=0)            
-        with col2:
-            r_untagged = st.number_input("r_untagged", min_value=1, max_value=50, value=5)    
-
-    # Convert booleans
-    create_video = (create_video_str == "true")
-    save_png = (save_png_str == "true")
-    show_untagged = (show_untagged_str == "true")
 
     # should eventually make this an option to specify the extension
     detection_ext = '' if timestamp_format=='rpi' else '-detections'  
@@ -177,6 +173,7 @@ def main():
         "timestamp_format": timestamp_format,
         "use_trajectories": use_trajectories,
         "save_filetype": save_filetype,
+        "use_clahe": use_clahe,
         # Video settings
         "create_video": create_video,
         "scale_factor": scale_factor,

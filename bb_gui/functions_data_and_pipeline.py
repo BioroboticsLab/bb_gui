@@ -27,7 +27,7 @@ def get_video_fps(video_path):
     else:
         return None  # Return None if FPS extraction fails
 
-def get_detections(video_path, tag_pixel_diameter):
+def get_detections(video_path, tag_pixel_diameter, use_clahe=True):
     # check for timestamps file
     if os.path.isfile(video_path[:-4] + ".txt"):
         frame_info, video_dataframe = bb_behavior.tracking.detect_markers_in_beesbook_video(
@@ -39,7 +39,7 @@ def get_detections(video_path, tag_pixel_diameter):
             n_frames=None,
             cam_id=0,
             confidence_filter=0.001,
-            clahe=True,
+            clahe=use_clahe,
             use_parallel_jobs=True,
             progress=None,
         )
@@ -54,7 +54,7 @@ def get_detections(video_path, tag_pixel_diameter):
             n_frames=None,
             cam_id=0,
             confidence_filter=0.001,
-            clahe=True,
+            clahe=use_clahe,
             use_parallel_jobs=True,
             progress=None,
         )
@@ -107,7 +107,9 @@ def display_detection_results(first_frame_image,video_dataframe,detectionspng_fi
 
 def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_pixel=1, scale_factor=0.25, recalc=False, 
                           timestamp_format='basler', save_png=False, use_trajectories=True, save_filetype="parquet",
-                          create_video=False, track_history=0, r_tagged=20, r_untagged=5, show_untagged=False, detection_ext='-detections', tracks_ext='-tracks'):
+                          create_video=False, use_clahe=True,
+                          track_history=0, r_tagged=20, r_untagged=5, show_untagged=False, 
+                          detection_ext='-detections', tracks_ext='-tracks'):
     """Runs detection/tracking pipeline on a single video."""
 
     st.write(f"Running pipeline on: {video_path}")
@@ -126,7 +128,7 @@ def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_p
             video_dataframe = pd.read_parquet(detections_filename)
     else:
         st.write("Running detection pipeline...")
-        frame_info, video_dataframe = get_detections(video_path, tag_pixel_diameter)
+        frame_info, video_dataframe = get_detections(video_path, tag_pixel_diameter, use_clahe=use_clahe)
         if save_filetype == "csv":
             video_dataframe.to_csv(detections_filename, index=False)
         else:
