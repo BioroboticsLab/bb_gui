@@ -90,7 +90,7 @@ def get_tracks(video_dataframe,cm_per_pixel):
 def display_detection_results(first_frame_image,video_dataframe,detectionspng_filename):
     f, ax = plt.subplots(figsize=(15, 15))
     ax.imshow(first_frame_image)
-    if video_dataframe is not None:
+    if (video_dataframe is not None)&(len(video_dataframe)>0):  # handle also some special cases where detections failed
         x_pixels = video_dataframe['xpos'].values
         y_pixels = video_dataframe['ypos'].values 
         orientations = video_dataframe['zrotation'].values  
@@ -167,15 +167,25 @@ def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_p
         video_start_timestamp = pd.Timestamp(video_start_timestamp).tz_localize(pytz.timezone('Europe/Berlin')).tz_convert(pytz.UTC)
 
     # 5) create tracked video
+    # only include detections dataframe if it is valid to prevent errors
+    video_dataframe_input = None
+    if video_dataframe is not None:
+        if show_untagged & (len(video_dataframe)>0):
+            video_dataframe_input = video_dataframe
+    # same for tracks df
+    tracks_df_input = None
+    if tracks_df is not None:
+        if use_trajectories & (len(tracks_df)>0):
+            tracks_df_input = tracks_df
     if create_video:
         st.write("Creating tracked video...")
         create_tracking_video(
             video_path,
             output_video_filename,
             video_start_timestamp,
-            tracks_df=tracks_df,
+            tracks_df=tracks_df_input,
             track_history=track_history,
-            video_dataframe=(video_dataframe if show_untagged else None),
+            video_dataframe=video_dataframe_input,
             scale_factor=scale_factor,
             r_tagged=r_tagged,
             r_untagged=r_untagged
