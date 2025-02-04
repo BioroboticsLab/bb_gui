@@ -314,6 +314,21 @@ def main():
                 st.video(video_path_to_play)
                 st.divider()
 
+    selected_rows = edited_df[edited_df["select"] == True]
+    if st.button("Show Detection Images for Selected"):
+        if selected_rows.empty:
+            st.warning("No rows selected!")
+        else:
+            for _, row in selected_rows.iterrows():
+                base_name = os.path.splitext(os.path.basename(row['video_name']))[0]
+                st.write(f"Detections image for {row['video_name']}")
+                png_file_to_show = os.path.join(result_dir, base_name+"-detections.png")
+                if os.path.exists(png_file_to_show):
+                    st.image(png_file_to_show)
+                else:
+                    st.write("\tno image found")                    
+                st.divider()                
+
 
 if __name__ == "__main__":
     main()

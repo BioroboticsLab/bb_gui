@@ -81,8 +81,8 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
                             "qp": 24,
                             "brightness": 0,
                             "shutter": 3,
-                            "gain": 22,
-                            "exposure": 20000,
+                            "gain": 0,
+                            "exposure": 5000,
                             "whitebalance": 0
                         }
                     },

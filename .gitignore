@@ -1,1 +1,6 @@
 .DS_Store
+.DS_Store
+.DS_Store
+/bb_gui.egg-info
+/bb_gui/__pycache__
+.DS_Store
