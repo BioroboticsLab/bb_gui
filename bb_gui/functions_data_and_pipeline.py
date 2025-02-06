@@ -127,7 +127,8 @@ def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_p
                           timestamp_format='basler', save_png=False, use_trajectories=True, save_filetype="parquet",
                           create_video=False, use_clahe=True,
                           track_history=0, r_tagged=20, r_untagged=5, show_untagged=False, 
-                          detection_ext='-detections', tracks_ext='-tracks'):
+                          detection_ext='-detections', tracks_ext='-tracks',
+                          bee_id_conf_threshold=0.01, detect_conf_threshold=0.01):
     """Runs detection/tracking pipeline on a single video."""
 
     st.write(f"Running pipeline on: {video_path}")

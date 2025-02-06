@@ -119,6 +119,14 @@ def main():
         # First row
         col1, col2, col3, col4 = st.columns(4)
         with col1:
+            recalc = st.checkbox("Recalculate?", value=False)
+        with col2:
+            use_trajectories = st.checkbox("Create tracks from detections?", value=True) 
+        with col3:
+            use_clahe = st.checkbox("Use CLAHE?", value=True)
+
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
             tag_pixel_diameter = st.number_input("tag_pixel_diameter", min_value=1.0, max_value=999.0, value=45.0)
         with col2:
             cm_per_pixel = st.number_input("cm_per_pixel", min_value=0.0, max_value=1.0, value=(200 / 5312))
@@ -126,14 +134,6 @@ def main():
             timestamp_format = st.selectbox("timestamp_format", ["basler", "rpi"], index=0)
         with col4:
             save_filetype = st.selectbox("save_filetype", ["parquet", "csv"], index=0)            
-        
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            use_trajectories = st.checkbox("Create tracks from detections?", value=True) 
-        with col2:
-            recalc = st.checkbox("Recalculate?", value=False)
-        with col3:
-            use_clahe = st.checkbox("Use CLAHE?", value=True)
 
     # ------------------------
     # 2) VIDEO SETTINGS
@@ -149,7 +149,7 @@ def main():
         with col3:
             show_untagged = st.checkbox("Show Untagged?", value=False)  # Default was "false"            
 
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3, col4, col5, col6 = st.columns(6)
         with col1:
             scale_factor = st.number_input("video scale factor", min_value=0.01, max_value=1.0, value=0.25)
         with col2:
@@ -158,6 +158,11 @@ def main():
             r_untagged = st.number_input("r_untagged", min_value=1, max_value=50, value=5)            
         with col4:
             r_tagged = st.number_input("r_tagged", min_value=1, max_value=50, value=20)
+        with col5:
+            bee_id_conf_threshold = st.number_input("id_conf_threshold", min_value=0.0, max_value=1.0, value=0.01)
+        with col6:
+            detect_conf_threshold = st.number_input("detect_conf_threshold", min_value=0.0, max_value=1.0, value=0.01)
+
 
 
     # should eventually make this an option to specify the extension
@@ -183,7 +188,9 @@ def main():
         "save_png": save_png,
         "show_untagged": show_untagged,
         "detection_ext": detection_ext,
-        "tracks_ext": tracks_ext
+        "tracks_ext": tracks_ext,
+        "bee_id_conf_threshold": bee_id_conf_threshold,
+        "detect_conf_threshold": detect_conf_threshold
     }
 
     # ------------------------
