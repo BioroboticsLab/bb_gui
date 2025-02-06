@@ -109,7 +109,7 @@ def display_detection_results(first_frame_image,video_dataframe=None,tracks_df=N
         if len(tracks_df)>0:
             x_pixels = tracks_df['x_pixels'].values
             y_pixels = tracks_df['y_pixels'].values 
-            orientations = tracks_df['zrotation'].values  
+            orientations = tracks_df['orientation_pixels'].values  
             # Plot detections
             plt.scatter(x_pixels, y_pixels, s=15, c='yellow', marker='o',alpha=0.5)
             # Plot orientation arrows, only if they already have not been plotted 
