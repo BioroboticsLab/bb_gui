@@ -91,18 +91,19 @@ def display_detection_results(first_frame_image,video_dataframe=None,tracks_df=N
     f, ax = plt.subplots(figsize=(15, 15))
     ax.imshow(first_frame_image)
     orientation_plotted = False
-    if (video_dataframe is not None)&(len(video_dataframe)>0):  # handle also some special cases where detections failed
-        x_pixels = video_dataframe['xpos'].values
-        y_pixels = video_dataframe['ypos'].values 
-        orientations = video_dataframe['zrotation'].values  
-        # Plot detections
-        plt.scatter(x_pixels, y_pixels, s=10, c='red', marker='o',alpha=0.3)
-        # Plot orientation arrows
-        orientation_plotted = True
-        for x, y, ori in zip(x_pixels, y_pixels, orientations):
-            dx = 40 * np.cos(ori)  # Adjust the length as needed
-            dy = 40 * np.sin(ori)
-            plt.arrow(x, y, dx, dy, color='yellow', head_width=15, head_length=15)
+    if video_dataframe is not None:
+        if len(video_dataframe)>0:  # handle also some special cases where detections failed
+            x_pixels = video_dataframe['xpos'].values
+            y_pixels = video_dataframe['ypos'].values 
+            orientations = video_dataframe['zrotation'].values  
+            # Plot detections
+            plt.scatter(x_pixels, y_pixels, s=10, c='red', marker='o',alpha=0.3)
+            # Plot orientation arrows
+            orientation_plotted = True
+            for x, y, ori in zip(x_pixels, y_pixels, orientations):
+                dx = 40 * np.cos(ori)  # Adjust the length as needed
+                dy = 40 * np.sin(ori)
+                plt.arrow(x, y, dx, dy, color='yellow', head_width=15, head_length=15)
     # plot tagged
     if tracks_df is not None:
         x_pixels = tracks_df['x_pixels'].values
@@ -192,7 +193,7 @@ def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_p
 
     if save_png:
         first_frame_image = bb_behavior.io.videos.get_first_frame_from_video(video_path)
-        display_detection_results(first_frame_image, video_dataframe=video_dataframe, tracks_df=tracks_df, detectionspng_filename=detectionspng_filename)
+        display_detection_results(first_frame_image, video_dataframe=video_dataframe_input, tracks_df=tracks_df_input, detectionspng_filename=detectionspng_filename)
 
     if create_video:
         st.write("Creating tracked video...")
