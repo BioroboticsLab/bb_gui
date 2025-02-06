@@ -106,17 +106,18 @@ def display_detection_results(first_frame_image,video_dataframe=None,tracks_df=N
                 plt.arrow(x, y, dx, dy, color='yellow', head_width=15, head_length=15)
     # plot tagged
     if tracks_df is not None:
-        x_pixels = tracks_df['x_pixels'].values
-        y_pixels = tracks_df['y_pixels'].values 
-        orientations = video_dataframe['zrotation'].values  
-        # Plot detections
-        plt.scatter(x_pixels, y_pixels, s=15, c='yellow', marker='o',alpha=0.5)
-        # Plot orientation arrows, only if they already have not been plotted 
-        if not orientation_plotted:
-            for x, y, ori in zip(x_pixels, y_pixels, orientations):
-                dx = 40 * np.cos(ori)  # Adjust the length as needed
-                dy = 40 * np.sin(ori)
-                plt.arrow(x, y, dx, dy, color='yellow', head_width=15, head_length=15)        
+        if len(tracks_df)>0:
+            x_pixels = tracks_df['x_pixels'].values
+            y_pixels = tracks_df['y_pixels'].values 
+            orientations = tracks_df['zrotation'].values  
+            # Plot detections
+            plt.scatter(x_pixels, y_pixels, s=15, c='yellow', marker='o',alpha=0.5)
+            # Plot orientation arrows, only if they already have not been plotted 
+            if not orientation_plotted:
+                for x, y, ori in zip(x_pixels, y_pixels, orientations):
+                    dx = 40 * np.cos(ori)  # Adjust the length as needed
+                    dy = 40 * np.sin(ori)
+                    plt.arrow(x, y, dx, dy, color='yellow', head_width=15, head_length=15)        
     if detectionspng_filename is not None:  # if save name is not set, don't close the figure
         plt.savefig(detectionspng_filename,bbox_inches="tight")
         plt.close()
