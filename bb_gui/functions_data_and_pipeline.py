@@ -87,9 +87,10 @@ def get_tracks(video_dataframe,cm_per_pixel):
     tracks_df['detection_type'] = 'TaggedBee'  # save this as a string
     return tracks_df
 
-def display_detection_results(first_frame_image,video_dataframe,detectionspng_filename):
+def display_detection_results(first_frame_image,video_dataframe=None,tracks_df=None,detectionspng_filename=None):
     f, ax = plt.subplots(figsize=(15, 15))
     ax.imshow(first_frame_image)
+    orientation_plotted = False
     if (video_dataframe is not None)&(len(video_dataframe)>0):  # handle also some special cases where detections failed
         x_pixels = video_dataframe['xpos'].values
         y_pixels = video_dataframe['ypos'].values 
@@ -97,12 +98,27 @@ def display_detection_results(first_frame_image,video_dataframe,detectionspng_fi
         # Plot detections
         plt.scatter(x_pixels, y_pixels, s=10, c='red', marker='o',alpha=0.3)
         # Plot orientation arrows
+        orientation_plotted = True
         for x, y, ori in zip(x_pixels, y_pixels, orientations):
             dx = 40 * np.cos(ori)  # Adjust the length as needed
             dy = 40 * np.sin(ori)
             plt.arrow(x, y, dx, dy, color='yellow', head_width=15, head_length=15)
-    plt.savefig(detectionspng_filename,bbox_inches="tight")
-    plt.close()
+    # plot tagged
+    if tracks_df is not None:
+        x_pixels = tracks_df['x_pixels'].values
+        y_pixels = tracks_df['y_pixels'].values 
+        orientations = video_dataframe['zrotation'].values  
+        # Plot detections
+        plt.scatter(x_pixels, y_pixels, s=15, c='yellow', marker='o',alpha=0.5)
+        # Plot orientation arrows, only if they already have not been plotted 
+        if not orientation_plotted:
+            for x, y, ori in zip(x_pixels, y_pixels, orientations):
+                dx = 40 * np.cos(ori)  # Adjust the length as needed
+                dy = 40 * np.sin(ori)
+                plt.arrow(x, y, dx, dy, color='yellow', head_width=15, head_length=15)        
+    if detectionspng_filename is not None:  # if save name is not set, don't close the figure
+        plt.savefig(detectionspng_filename,bbox_inches="tight")
+        plt.close()
     return True
 
 def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_pixel=1, scale_factor=0.25, recalc=False, 
@@ -134,10 +150,6 @@ def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_p
         else:
             video_dataframe.to_parquet(detections_filename)
 
-    if save_png:
-        first_frame_image = bb_behavior.io.videos.get_first_frame_from_video(video_path)
-        display_detection_results(first_frame_image, video_dataframe, detectionspng_filename)
-
     # 3) Tracking
     if use_trajectories:
         if os.path.isfile(tracks_filename) and not recalc:
@@ -166,7 +178,7 @@ def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_p
         video_start_timestamp = datetime.strptime(timestamp_str, '%Y-%m-%d-%H-%M-%S')
         video_start_timestamp = pd.Timestamp(video_start_timestamp).tz_localize(pytz.timezone('Europe/Berlin')).tz_convert(pytz.UTC)
 
-    # 5) create tracked video
+    # 5) create tracked video and/or detection png
     # only include detections dataframe if it is valid to prevent errors
     video_dataframe_input = None
     if video_dataframe is not None:
@@ -177,6 +189,11 @@ def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_p
     if tracks_df is not None:
         if use_trajectories & (len(tracks_df)>0):
             tracks_df_input = tracks_df
+
+    if save_png:
+        first_frame_image = bb_behavior.io.videos.get_first_frame_from_video(video_path)
+        display_detection_results(first_frame_image, video_dataframe=video_dataframe, tracks_df=tracks_df, detectionspng_filename=detectionspng_filename)
+
     if create_video:
         st.write("Creating tracked video...")
         create_tracking_video(
