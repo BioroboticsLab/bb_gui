@@ -46,12 +46,13 @@ def main():
         out_dir = os.path.abspath(out_dir)
 
         st.subheader("Camera Settings ("+cam_name+")")
-        cam0 = config["streams"][cam_name]
+        cam0 = config["streams"][cam_name] 
         params = cam0["camera"]["params"]
+        triggerparams = cam0["camera"]["params"]["trigger"]
 
         trigger_type_options = ["hardware", "software"]
-        current_trigger_type = params["trigger"].get("type", "software")
-        col1, col2, col3, col4 = st.columns(4)
+        current_trigger_type = triggerparams.get("type", "software")
+        col1, col2, col3, col4, col5 = st.columns(5)
         with col1:
             new_trigger_type = st.selectbox(
                 "Trigger Type", 
@@ -73,9 +74,16 @@ def main():
                 min_value=0,
                 max_value=50,
                 value=int(params.get("gain", 0)),
-                key="gain_input"
             )
         with col4:
+            exposure_time = st.number_input(
+                "Exposure time (ms)",
+                min_value=1,
+                max_value=25,
+                value=int(params.get("exposure",5000)/1000),  # its microseconds in the file -- convert to ms
+                key="exposure_time_input"
+            )
+        with col5:
             frames_per_file = st.number_input(
                 "Frames Per File",
                 min_value=1,
@@ -87,10 +95,16 @@ def main():
         if st.button("Save Config", key="save_bbimg_config"):
             config["tmp_dir"] = tmp_dir
             config["out_dir"] = out_dir
-            params["trigger"]["type"] = new_trigger_type
+
+            triggerparams["type"] = new_trigger_type
+
             cam0["frames_per_second"] = frames_per_second
+            triggerparams["frames_per_second"] = frames_per_second
+
             params["gain"] = gain_val
+
             cam0["frames_per_file"] = frames_per_file
+            params["exposure"] = int(exposure_time*1000)
             functions_acquisition.save_bbimg_config(config)
             st.success("Config saved!")
 
