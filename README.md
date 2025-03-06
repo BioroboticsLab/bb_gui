@@ -38,3 +38,11 @@ This will start the Streamlit interface and open it in your default web browser.
 
 Since bb_gui wraps streamlit run bb_gui.py, you can pass any Streamlit options, for example:
 ```bb_gui --server.headless true --server.port 8501```
+
+## Screenshots
+
+![bb_gui record video](images/bb_gui_record.png)
+
+![bb_gui run pipeline](images/bb_gui_pipeline.png)
+
+![bb_gui display bideos](images/bb_gui_show_video.png)
