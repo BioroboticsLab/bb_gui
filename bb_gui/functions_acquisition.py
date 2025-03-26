@@ -211,7 +211,13 @@ def rename_and_move_temp_files(tmp_dir, out_dir, frames_per_file, frames_per_sec
     4. Moves the renamed files to `out_dir/subdir`.
     """
     
-    tmp_dir_full = os.path.join(tmp_dir,subdir)
+    tmp_dir_full = os.path.join(tmp_dir, subdir)
+    
+    # If the directory does not exist, the acqusition was not started inbetween changing
+    # configurations.
+    if not os.path.exists(tmp_dir_full):
+        print("[INFO] Temporary directory does not exist. No videos to move.")
+        return
     
     # 1) Calculate the time threshold
     threshold_seconds = (frames_per_file / frames_per_second) * 1.5
