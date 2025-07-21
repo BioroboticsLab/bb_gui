@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-import bb_behavior.io.videos
+from bb_behavior.io.videos import get_first_frame_from_video
 import bb_behavior.tracking
 from bb_binary.parsing import parse_video_fname
 from bb_behavior.vis.create_tracking_video import create_tracking_video
@@ -194,7 +194,7 @@ def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_p
             tracks_df_input = tracks_df
 
     if save_png:
-        first_frame_image = bb_behavior.io.videos.get_first_frame_from_video(video_path)
+        first_frame_image = get_first_frame_from_video(video_path)
         display_detection_results(first_frame_image, video_dataframe=video_dataframe_input, tracks_df=tracks_df_input, detectionspng_filename=detectionspng_filename)
 
     if create_video:
