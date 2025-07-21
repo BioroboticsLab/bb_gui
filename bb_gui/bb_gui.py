@@ -29,12 +29,18 @@ def video_has_results(video_path, save_filetype, resultdir, detection_ext='-dete
 def main():
     st.title("Beesbook recording and tracking")
 
-    config = functions_acquisition.load_config()
+    # ——————— Safely load camera config ———————
+    try:
+        config = functions_acquisition.load_config()
+        streams = config.get("streams", {})
+        camera_names = list(streams.keys())
+    except Exception:
+        st.info("Could not load camera configuration; skipping recording section.")
+        camera_names = []
 
-    streams = config.get("streams", {})
-    camera_names = list(streams.keys())
-    if len(camera_names)>1:
-        st.info("Multiple camera configuration detected. This is not currently supported for recording in bb_gui interface.")
+    # Only show the Recording UI if we successfully found ONLY one camera
+    if not(len(camera_names)==1):
+        st.info("Config error or Multiple camera configuration detected")
         cam_name = 'cam-0'
         out_dir = os.path.abspath("out")  # default
     else:
