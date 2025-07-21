@@ -154,6 +154,12 @@ def main():
             timestamp_format = st.selectbox("timestamp_format", ["basler", "rpi"], index=0)
         with col4:
             save_filetype = st.selectbox("save_filetype", ["parquet", "csv"], index=0)            
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            detection_ext = st.text_input("detection_ext",value="-detections")
+        with col2:
+            tracks_ext = st.text_input("tracks_ext", value="-tracks")
 
     # ------------------------
     # 2) VIDEO SETTINGS
@@ -183,11 +189,6 @@ def main():
         with col6:
             detect_conf_threshold = st.number_input("detect_conf_threshold", min_value=0.0, max_value=1.0, value=0.01)
 
-
-
-    # should eventually make this an option to specify the extension
-    detection_ext = '' if timestamp_format=='rpi' else '-detections'  
-    tracks_ext = "-tracks"
     
     # COMBINE ALL PARAMETERS
     pipeline_params = {
