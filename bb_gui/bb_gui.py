@@ -4,11 +4,48 @@ import glob
 import pandas as pd
 import functions_acquisition
 import functions_data_and_pipeline
-import urllib.parse
+import subprocess, tempfile, os, pathlib
 
 import importlib
 importlib.reload(functions_acquisition)
 importlib.reload(functions_data_and_pipeline)
+
+# Helper: return a browser-playable path for a given video file
+def _get_playable_video_path(src_path: str, fps_fallback: str = "30") -> str:
+    """
+    If *src_path* ends with .h264, remux it into a temporary .mp4 and return the
+    temp path. Otherwise just return *src_path* unchanged.
+    """
+    if not src_path.lower().endswith(".h264"):
+        return src_path
+
+    # Cache so we don't remux the same file repeatedly in one Streamlit session
+    cache = st.session_state.setdefault("h264_mp4_cache", {})
+    if src_path in cache and pathlib.Path(cache[src_path]).exists():
+        return cache[src_path]
+
+    # Create a temp file that survives until the Streamlit run ends
+    tmp_mp4 = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
+    tmp_mp4.close()  # we only need the name; ffmpeg will write to it
+
+    # Remux: copy the raw bit-stream into an MP4 container (no re-encode)
+    cmd = [
+        "ffmpeg",
+        "-y",                         # overwrite if exists
+        "-framerate", fps_fallback,   # needed because raw .h264 has no timing
+        "-i", src_path,
+        "-c", "copy",
+        tmp_mp4.name,
+    ]
+    try:
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    except (subprocess.CalledProcessError, FileNotFoundError) as err:
+        st.error(f"Could not remux {os.path.basename(src_path)} to MP4.\n\n{err}")
+        # Fallback: return original path (it will fail to play, but at least UI continues)
+        return src_path
+
+    cache[src_path] = tmp_mp4.name
+    return tmp_mp4.name
 
 def save_gui_config(config):
     # Implement your config saving here
@@ -328,16 +365,18 @@ def main():
             st.warning("No rows selected!")
         else:
             for _, row in selected_rows.iterrows():
-                if row['has_video']:
+                if row["has_video"]:
                     st.write(f"Tracked video for {row['video_name']}")
-                    base_name = os.path.splitext(os.path.basename(row['video_name']))[0]
+                    base_name = os.path.splitext(os.path.basename(row["video_name"]))[0]
                     video_path_to_play = os.path.join(result_dir, f"{base_name}-tracked-video.mp4")
                 else:
                     st.write(f"Raw video for {row['video_name']}")
-                    video_path_to_play = os.path.join(input_dir, f"{row['video_name']}")
+                    raw_path = os.path.join(input_dir, row["video_name"])
+                    # ensure browser-playable path
+                    video_path_to_play = _get_playable_video_path(raw_path)
 
                 st.video(video_path_to_play)
-                st.divider()
+                st.divider()                
 
     selected_rows = edited_df[edited_df["select"] == True]
     if st.button("Show Detection Images for Selected"):
