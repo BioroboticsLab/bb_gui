@@ -27,7 +27,28 @@ def get_video_fps(video_path):
     else:
         return None  # Return None if FPS extraction fails
 
-def get_detections(video_path, tag_pixel_diameter, use_clahe=True):
+def build_polo_pipeline():
+    """Build a bb_pipeline Pipeline using PoloLocalizer instead of Localizer."""
+    import pipeline
+    import pipeline.pipeline
+    import pipeline.objects
+    from pipeline.stages import (
+        ImageReader,
+        LocalizerPreprocessor,
+        PoloLocalizer,
+        Decoder,
+        ResultMerger,
+    )
+    PoloStages = (ImageReader, LocalizerPreprocessor, PoloLocalizer, Decoder, ResultMerger)
+    conf = pipeline.pipeline.get_auto_config()
+    return pipeline.Pipeline(
+        [pipeline.objects.Image],
+        [pipeline.objects.PipelineResult],
+        available_stages=PoloStages,
+        **conf,
+    )
+
+def get_detections(video_path, tag_pixel_diameter, use_clahe=True, decoder_pipeline=None):
     # check for timestamps file
     if os.path.isfile(video_path[:-4] + ".txt"):
         frame_info, video_dataframe = bb_behavior.tracking.detect_markers_in_beesbook_video(
@@ -35,7 +56,7 @@ def get_detections(video_path, tag_pixel_diameter, use_clahe=True):
             ts_format="basler",
             tag_pixel_diameter=tag_pixel_diameter,
             verbose=False,
-            decoder_pipeline=None,
+            decoder_pipeline=decoder_pipeline,
             n_frames=None,
             cam_id=0,
             confidence_filter=0.001,
@@ -50,7 +71,7 @@ def get_detections(video_path, tag_pixel_diameter, use_clahe=True):
             tag_pixel_diameter=tag_pixel_diameter,
             fps=fps,
             verbose=False,
-            decoder_pipeline=None,
+            decoder_pipeline=decoder_pipeline,
             n_frames=None,
             cam_id=0,
             confidence_filter=0.001,
@@ -147,7 +168,8 @@ def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_p
             video_dataframe = pd.read_parquet(detections_filename)
     else:
         st.write("Running detection pipeline...")
-        frame_info, video_dataframe = get_detections(video_path, tag_pixel_diameter, use_clahe=use_clahe)
+        decoder_pipeline = build_polo_pipeline() if timestamp_format == "rpi" else None
+        frame_info, video_dataframe = get_detections(video_path, tag_pixel_diameter, use_clahe=use_clahe, decoder_pipeline=decoder_pipeline)
         if save_filetype == "csv":
             video_dataframe.to_csv(detections_filename, index=False)
         else:
