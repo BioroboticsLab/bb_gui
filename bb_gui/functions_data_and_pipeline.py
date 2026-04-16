@@ -230,7 +230,9 @@ def run_pipeline_on_video(video_path, resultdir, tag_pixel_diameter=38, cm_per_p
             video_dataframe=video_dataframe_input,
             scale_factor=scale_factor,
             r_tagged=r_tagged,
-            r_untagged=r_untagged
+            r_untagged=r_untagged,
+            bee_id_conf_threshold=bee_id_conf_threshold,
+            detect_conf_threshold=detect_conf_threshold
         )
         st.success(f"Pipeline and video complete! Output: {output_video_filename}")
     else:
